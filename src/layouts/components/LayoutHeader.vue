@@ -9,7 +9,8 @@
           >Letter App</span
         >
       </router-link>
-      <div class="flex items-center space-x-2">
+      <button class="btn btn-red" v-if="isAuth" @click="onLogout">Log out</button>
+      <div class="flex items-center space-x-2" v-else>
         <router-link
           :to="{name: 'login'}"
           class="btn btn-blue"
@@ -17,7 +18,7 @@
           Login
         </router-link>
         <router-link
-          :to="{name: 'login'}"
+          :to="{name: 'signup'}"
           class="btn btn-blue_outline"
         >
           Sign up
@@ -26,3 +27,23 @@
     </div>
   </nav>
 </template>
+<script>
+import { mapGetters, mapActions } from 'vuex'
+import { logout } from '@/api/authApi'
+export default {
+  name: 'LayoutHeader',
+  computed: {
+    ...mapGetters('auth', ['isAuth'])
+  },
+  methods: {
+    ...mapActions('auth', {
+      authLogout: 'logout'
+    }),
+    async onLogout() {
+      await logout()
+      this.authLogout()
+      localStorage.removeItem('token')
+    }
+  }
+}
+</script>

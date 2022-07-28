@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="flex items-center">
         <button class="btn btn-blue btn-blue_outline font-semibold flex items-center">
             <svg class="w-6 h-6 mr-2">
                 <use xlink:href="/sprite.svg#plus" />

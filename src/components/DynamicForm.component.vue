@@ -41,7 +41,7 @@
       class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition-all h-12 disabled:opacity-80 disabled:hover:bg-blue-700"
     >
       <span v-if="!isLoading">{{ formSchema.meta.submitLabel }}</span>
-      <LoadingSpinner v-else class="mx-auto" />
+      <LoadingSpinner v-else class="mx-auto w-6 h-6" />
     </button>
     <span
       class="block text-center text-red-500 font-semibold text-sm"
@@ -111,11 +111,11 @@ export default {
 
       this.$emit("submit", model);
 
-      resetForm()
+      // resetForm()
     
-      fields.forEach((field) => {
-        field.model = ''
-      });
+      // fields.forEach((field) => {
+      //   field.model = ''
+      // });
     },
     onInvalidSubmit({ errors }) {
       const errorRefs = Array.from(Object.keys(errors));

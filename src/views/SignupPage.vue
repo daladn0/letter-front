@@ -15,8 +15,9 @@
 import { mapActions } from "vuex";
 import { signup } from '@/api/authApi'
 import DynamicForm from "@/components/DynamicForm.component.vue";
-import { authFields, authValidationSchema } from "@/constants/form";
+import { signupFields, signupValidationSchema } from "@/constants/form";
 import { TYPES } from "@/constants/toast";
+import { withAsync } from '../helpers/withAsync';
 
 export default {
   name: "SignupPage",
@@ -38,31 +39,31 @@ export default {
             linkHref: "/login",
           },
         },
-        fields: authFields,
+        fields: signupFields,
       },
-      validationSchema: authValidationSchema,
+      validationSchema: signupValidationSchema,
     };
   },
   methods: {
-    signup,
     ...mapActions("toast", ["showToast"]),
 
     async onSubmit(model) {
-      this.error = null
-      this.isLoading = true
+        this.error = null
+        this.isLoading = true
 
-      try {
-        const response = await this.signup(model.email, model.password)
+        const { response, error, errorMessage } = await withAsync(signup, model.email, model.password)
 
-        if ( response.status === 200 ) {
-          this.showToast({content: { heading: 'Registration', message: response.data.message}, type: TYPES.SUCCESS})
+        if ( response ) {
+          this.showToast({content: { heading: 'Registration', message: 'User has been created'}, type: TYPES.SUCCESS})
+
           this.$router.push({name: 'login'})
         }
-      } catch(e) {
-        this.error = e.response.data.message
-      } finally {
+
+        if ( error ) {
+          this.error = errorMessage || 'Something went wrong'
+        }
+
         this.isLoading = false
-      }
     },
   },
 };

@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import HomePage from "@/views/HomePage.vue";
+import store from '@/store/'
 
 const routes = [
   {
@@ -7,7 +8,8 @@ const routes = [
     name: "home",
     component: () => HomePage,
     meta: {
-      layout: 'main'
+      layout: 'main',
+      authRequired: true,
     }
   },
   {
@@ -32,5 +34,13 @@ const router = createRouter({
   history: createWebHistory(),
   routes,
 });
+
+// router.beforeEach((to, from, next) => {
+//   if ( !to.meta.authRequired ) return next()
+
+//   if ( to?.meta?.authRequired && store.getters['auth/isAuth'] ) return next()
+
+//   next({ name: 'login' })
+// })
 
 export default router;

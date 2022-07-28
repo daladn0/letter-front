@@ -4,7 +4,7 @@
       class="mx-auto"
       :formSchema="formSchema"
       :validationSchema="validationSchema"
-      :isLoading="isLoading"
+      :is-loading="isLoading"
       :errorMessage="error"
       @submit="onSubmit"
     />
@@ -13,9 +13,9 @@
 <script>
 import { mapActions } from "vuex";
 import DynamicForm from "@/components/DynamicForm.component.vue";
-import { authFields, authValidationSchema } from "@/constants/form";
-import { login } from '@/api/authApi'
-import { TYPES } from "@/constants/toast";
+import { loginFields, loginValidationSchema } from "@/constants/form";
+import { login as authLogin } from "@/api/authApi";
+import { withAsync } from "../helpers/withAsync";
 
 export default {
   name: "LoginPage",
@@ -37,40 +37,35 @@ export default {
             linkHref: "/signup",
           },
         },
-        fields: authFields,
+        fields: loginFields,
       },
-      validationSchema: authValidationSchema,
+      validationSchema: loginValidationSchema,
     };
   },
   methods: {
-    login,
-    ...mapActions('auth', {
-      userLogin: 'login'
+    authLogin,
+    ...mapActions("auth", {
+      authLogin: 'login'
     }),
-    ...mapActions("toast", ["showToast"]),
 
     async onSubmit(model) {
-      this.error = null
-      this.isLoading = true 
+        this.error = null;
+        this.isLoading = true;
 
-      try {
-        const response = await this.login(model.email, model.password)
+        const { response, error, errorMessage } = await withAsync(authLogin, model.email, model.password)
 
-        if ( response && response?.status === 200 ) {
-          this.showToast({content: { heading: 'Authorization', message: 'You are now logged in!'}, type: TYPES.SUCCESS})
-          
-          this.userLogin(response.data.user)
-
+        if ( response ) {
+          this.authLogin(response.data.user)
           localStorage.setItem('token', response.data.accessToken)
-
-          this.$router.push({name: 'home'})
+          this.$router.push({ name: "home" });
+        } 
+        
+        if ( error ) {
+          console.log(error, errorMessage)
+          this.error = errorMessage || 'Something went wrong'
         }
-      } catch(e) {
-        console.log(e)
-        this.error = e?.response?.data?.message
-      } finally {
+
         this.isLoading = false
-      }
     },
   },
 };

@@ -6,7 +6,6 @@ export const signup = (email, password) => {
 }
 
 export const login = (email, password) => {
-    console.log('asdjnasjdnasjhdnjsa')
     return api.post('/auth/login', {email, password})
 }
 
