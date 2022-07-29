@@ -10,6 +10,7 @@
     <TableList
       @inputChanged="onInputChanged($event)"
       @deleteWord="onWordDelete"
+      @filter="onFilter"
       :allowEditing="allowEditing"
       :mode="mode"
       :items="items"
@@ -35,6 +36,7 @@ export default {
       mode: MODES.BOTH,
       isLoading: true,
       items: [],
+      filter: null,
     };
   },
   created() {
@@ -49,11 +51,11 @@ export default {
     localStorage.setItem("allowEditing", this.allowEditing);
   },
   async mounted() {
-    this.getWords();
+    this.getWords({queryString: this.filter});
   },
   methods: {
-    async getWords() {
-      const { response, error, errorMessage } = await withAsync(fetchAll);
+    async getWords(args) {
+      const { response, error } = await withAsync(fetchAll, args);
       this.isLoading = false;
 
       if (response) {
@@ -61,7 +63,7 @@ export default {
       }
 
       if (error) {
-        this.error = errorMessage || "Something went wrong";
+        console.log(error)
       }
     },
     async onInputChanged(item) {
@@ -71,7 +73,7 @@ export default {
       const { response, error } = await withAsync(addWord)
 
       if ( response ) {
-        await this.getWords()
+        await this.getWords({queryString: this.filter})
       }
 
       if ( error ) {
@@ -80,9 +82,13 @@ export default {
     },
     async onWordDelete(item) {
       const {error} = await withAsync(removeWord, item._id)
-      this.getWords()
+      this.getWords({queryString: this.filter})
 
       if ( error ) console.log(error)
+    },
+    async onFilter(filter) {
+      this.filter = `${[filter.name]}=${filter.state}`
+      this.getWords({queryString: this.filter})
     }
   },
   watch: {

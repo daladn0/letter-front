@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center border-b">
+  <div class="flex items-center border-b transition-all">
     <div class="p-4 w-1/12">
       <p class="block max-w-full truncate">{{ index }}</p>
     </div>

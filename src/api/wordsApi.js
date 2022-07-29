@@ -1,7 +1,13 @@
 import api from './api'
 
-export const fetchAll = () => {
-    return api.get('/word')
+export const fetchAll = (args) => {
+    let url = `/word`
+
+    if ( args?.queryString ) {
+        url = `/word?${args.queryString}`
+    }
+
+    return api.get(url)
 }
 
 export const updateWord = (id, word, definition) => {

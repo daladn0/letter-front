@@ -38,6 +38,7 @@
 <script>
 export default {
   name: "TableHeading",
+  emits: ['filter'],
   props: ["sortFilters"],
   data() {
     return {
@@ -51,10 +52,11 @@ export default {
     onFilterChange(title) {
       if (this.filter.name === title) {
         this.filter.state = -(this.filter.state);
-        return;
+      } else {
+        this.filter.name = title;
       }
 
-      this.filter.name = title;
+      this.$emit('filter', this.filter)
     },
   },
 };
