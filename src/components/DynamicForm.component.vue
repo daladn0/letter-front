@@ -101,7 +101,7 @@ export default {
     };
   },
   methods: {
-    onSubmit(values, { resetForm }) {
+    onSubmit() {
       const model = {};
       const fields = this.formSchema.fields;
 
@@ -110,12 +110,6 @@ export default {
       });
 
       this.$emit("submit", model);
-
-      // resetForm()
-    
-      // fields.forEach((field) => {
-      //   field.model = ''
-      // });
     },
     onInvalidSubmit({ errors }) {
       const errorRefs = Array.from(Object.keys(errors));
