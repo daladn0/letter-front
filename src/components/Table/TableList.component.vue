@@ -5,23 +5,7 @@
       v-else
       class="table-list table-fixed w-full text-left rounded-lg overflow-hidden shadow-lg"
     >
-      <div class="bg-blue-600 text-white">
-        <div class="flex items-center font-semibold">
-          <div class="w-1/12 p-4">#</div>
-          <div class="w-4/12 p-4">
-            <button>Word/Phrase</button>
-          </div>
-          <div class="w-4/12 p-4">
-            <button>Definition/Translation</button>
-          </div>
-          <div class="w-2/12 p-4">
-            <button>Date</button>
-          </div>
-          <div class="w-1/12 p-4 text-center">
-            Actions
-          </div>
-        </div>
-      </div>
+      <TableHeading :sortFilters="sortFilters" />
       <div>
         <div :class="{'card': mode !== MODES.BOTH}" v-for="(item, index) in items" :key="item._id">
           <TableItem
@@ -52,6 +36,7 @@
 </template>
 
 <script>
+import TableHeading from '@/components/Table/TableHeading.component.vue'
 import TableItem from "@/components/Table/TableItem.component.vue";
 import LoadingSpinner from "@/components/LoadingSpinner.component.vue";
 import { MODES } from "@/constants/mode";
@@ -59,14 +44,19 @@ export default {
   name: "TableList",
   emits: ['inputChanged', 'deleteWord'],
   props: ["allowEditing", "mode", "isLoading", "items"],
-  data() {
-    return {
-      MODES,
-    };
+  created() {
+    this.MODES = MODES
+    this.sortFilters = [
+      { name: 'Word/Phrase', filter: 'word', width: 'w-4/12' },
+      { name: 'Definition/Translation', filter: 'definition', width: 'w-4/12' },
+      { name: 'Date', filter: 'date', width: 'w-2/12' },
+      { name: 'Actions', width: 'w-1/12', textAlignCenter: true, },
+    ]
   },
   components: {
     LoadingSpinner,
     TableItem,
+    TableHeading,
   },
 };
 </script>
