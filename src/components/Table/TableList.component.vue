@@ -73,6 +73,7 @@ export default {
 
 <style lang="scss">
 .card {
+  -webkit-perspective: 1000px;
   perspective: 1000px;
   .back {
     transform: rotateX(180deg);

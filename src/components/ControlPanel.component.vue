@@ -1,6 +1,6 @@
 <template>
   <div class="bg-white p-4 rounded-md border">
-    <div class="flex justify-end items-center h-12 space-x-2">
+    <div class="flex justify-end items-center h-12 space-x-4">
       <select
         :value="mode"
         @change="$emit('toggleMode', $event.target.value)"

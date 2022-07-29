@@ -4,33 +4,33 @@
       <p class="block max-w-full truncate">{{ index }}</p>
     </div>
     <div class="px-4 w-4/12">
-      <input
-        @change="$emit('inputChanged', item)"
-        :disabled="!allowEditing"
-        :class="{ 'blur-sm': mode === MODES.WORDS }"
-        class="bg-transparent w-full h-full py-4 outline-none"
-        type="text"
-        v-model="item.word"
+      <TableInput
+        @inputChanged="$emit('inputChanged', item)"
         placeholder="Something awful.."
+        :allowEditing="allowEditing"
+        :class="{ 'blur-sm': mode === MODES.WORDS }"
+        v-model="item.word"
       />
     </div>
     <div class="px-4 w-4/12">
-      <input
-        @change="$emit('inputChanged', item)"
-        :disabled="!allowEditing"
-        :class="{ 'blur-sm': mode === MODES.DEFINITIONS }"
-        class="bg-transparent w-full h-full py-4 outline-none"
-        type="text"
-        v-model="item.definition"
+      <TableInput
+        @inputChanged="$emit('inputChanged', item)"
         placeholder="Щось жахливе.."
+        :allowEditing="allowEditing"
+        :class="{ 'blur-sm': mode === MODES.DEFINITIONS }"
+        v-model="item.definition"
       />
     </div>
     <div class="p-4 w-2/12">
       <p class="text-sm text-gray-700">{{ formatDate(item.date) }}</p>
     </div>
     <div class="p-4 w-1/12">
-      <button class="text-center mx-auto block focus:ring ring-red-500 outline-none rounded-full">
-        <svg class="w-6 h-6 text-red-500" @click="$emit('deleteWord', item)">
+      <button
+        @click="$emit('deleteWord', item)"
+        :disabled="!allowEditing"
+        class="text-center mx-auto block focus:ring ring-red-500 outline-none rounded-full"
+      >
+        <svg class="w-6 h-6 text-red-500">
           <use xlink:href="/sprite.svg#close" />
         </svg>
       </button>
@@ -38,12 +38,16 @@
   </div>
 </template>
 <script>
+import TableInput from "@/components/Table/TableInput.component.vue";
 import { MODES } from "@/constants/mode";
 import { formatDate } from "../../helpers/formatDate";
 export default {
   name: "TableItem",
-  emits: ["inputChanged", 'deleteWord'],
+  emits: ["inputChanged", "deleteWord"],
   props: ["item", "allowEditing", "index", "mode"],
+  components: {
+    TableInput,
+  },
   data() {
     return {
       MODES,
