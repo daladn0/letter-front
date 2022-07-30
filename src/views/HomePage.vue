@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto pt-6 space-y-8">
+  <div class="container mx-auto py-6 space-y-8">
     <ControlPanel
       @swap="allowEditing = !allowEditing"
       @toggleMode="mode = $event"
@@ -16,12 +16,20 @@
       :items="items"
       :isLoading="isLoading"
     />
+    <Pagination
+      v-if="totalCount > limit"
+      class="flex justify-center"
+      @change="onPageChange"
+      :currentPage="currentPage"
+      :totalPages="totalPages"
+    />
   </div>
 </template>
 <script>
-import { MODES } from "@/constants/mode";
 import ControlPanel from "@/components/ControlPanel.component.vue";
 import TableList from "@/components/Table/TableList.component.vue";
+import Pagination from "@/components/Pagination.component.vue";
+import { MODES } from "@/constants/mode";
 import { withAsync } from "../helpers/withAsync";
 import { fetchAll, updateWord, addWord, removeWord } from "@/api/wordsApi";
 export default {
@@ -29,14 +37,21 @@ export default {
   components: {
     TableList,
     ControlPanel,
+    Pagination,
   },
   data() {
     return {
       allowEditing: true,
       mode: MODES.BOTH,
       isLoading: true,
+      filter: {
+        name: null,
+        state: null,
+      },
       items: [],
-      filter: null,
+      totalCount: 0,
+      currentPage: 1,
+      limit: 10,
     };
   },
   created() {
@@ -51,7 +66,7 @@ export default {
     localStorage.setItem("allowEditing", this.allowEditing);
   },
   async mounted() {
-    this.getWords({queryString: this.filter});
+    this.getWords({ page: this.currentPage, limit: this.limit });
   },
   methods: {
     async getWords(args) {
@@ -59,41 +74,62 @@ export default {
       this.isLoading = false;
 
       if (response) {
-        this.items = response.data;
+        this.items = response.data.words;
+        this.totalCount = response.data.totalCount;
       }
 
       if (error) {
-        console.log(error)
+        console.log(error);
       }
     },
     async onInputChanged(item) {
       await updateWord(item._id, item.word, item.definition);
     },
     async onAddWord() {
-      const { response, error } = await withAsync(addWord)
+      const { response, error } = await withAsync(addWord);
 
       if ( response ) {
-        await this.getWords({queryString: this.filter})
+        if ( this.items.length >= this.limit ) {
+          this.getWords({ page: this.currentPage, limit: this.limit, sortBy: this.filter.name, orderBy: this.filter.state })
+        } else {
+          this.items.unshift(response.data)
+        }
       }
 
-      if ( error ) {
-        console.log(error)
+      if (error) {
+        console.log(error);
       }
     },
     async onWordDelete(item) {
-      const {error} = await withAsync(removeWord, item._id)
-      this.getWords({queryString: this.filter})
+      const { response, error } = await withAsync(removeWord, item._id);
 
-      if ( error ) console.log(error)
+      if (this.items.length <= 1 && this.currentPage > 1) return (this.currentPage = this.currentPage - 1);
+
+      if ( response ) {
+        this.items = this.items.filter( i => i._id !== item._id )
+      }
+
+      if (error) console.log(error);
     },
     async onFilter(filter) {
-      this.filter = `${[filter.name]}=${filter.state}`
-      this.getWords({queryString: this.filter})
-    }
+      this.filter = filter;
+      this.getWords({ page: this.currentPage, limit: this.limit, sortBy: this.filter.name, orderBy: this.filter.state });
+    },
+    onPageChange(page) {
+      this.currentPage = page;
+    },
   },
   watch: {
     allowEditing() {
       localStorage.setItem("allowEditing", this.allowEditing);
+    },
+    currentPage() {
+      this.getWords({ page: this.currentPage, limit: this.limit, sortBy: this.filter.name, orderBy: this.filter.state });
+    },
+  },
+  computed: {
+    totalPages() {
+      return Math.ceil(this.totalCount / this.limit);
     },
   },
 };

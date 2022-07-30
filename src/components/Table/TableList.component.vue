@@ -10,37 +10,40 @@
         @filter="$emit('filter', $event)"
       />
       <div>
-        <p v-if="!items.length" class="mt-4 mx-auto text-center font-semibold text-gray-600">No words yet.</p>
-        <transition-group name="list" v-else>
-          <div
-            class=" shadow-lg"
-            :class="{ card: mode !== MODES.BOTH }"
-            v-for="(item, index) in items"
-            :key="item._id"
-          >
-            <TableItem
-              class="front"
-              @inputChanged="$emit('inputChanged', $event)"
-              @deleteWord="$emit('deleteWord', $event)"
-              :allowEditing="allowEditing"
-              :item="item"
-              :index="index + 1"
-              :class="[index % 2 === 0 ? 'bg-white' : 'bg-slate-100']"
-              :mode="mode"
-            />
+        <p
+          v-if="!items.length"
+          class="mt-4 mx-auto text-center font-semibold text-gray-600"
+        >
+          No words yet.
+        </p>
+        <div
+          class="shadow-lg"
+          :class="{ card: mode !== MODES.BOTH }"
+          v-for="(item, index) in items"
+          :key="item._id"
+        >
+          <TableItem
+            class="front"
+            @inputChanged="$emit('inputChanged', $event)"
+            @deleteWord="$emit('deleteWord', $event)"
+            :allowEditing="allowEditing"
+            :item="item"
+            :index="index + 1"
+            :class="[index % 2 === 0 ? 'bg-white' : 'bg-slate-100']"
+            :mode="mode"
+          />
 
-            <TableItem
-              v-if="mode !== MODES.BOTH"
-              class="back absolute left-0 top-0 w-full"
-              :allowEditing="false"
-              :item="item"
-              :index="index + 1"
-              :class="[index % 2 === 0 ? 'bg-white' : 'bg-slate-100']"
-              :mode="MODES.BOTH"
-              @inputChanged="$emit('inputChanged', $event)"
-            />
-          </div>
-        </transition-group>
+          <TableItem
+            v-if="mode !== MODES.BOTH"
+            class="back absolute left-0 top-0 w-full"
+            :allowEditing="false"
+            :item="item"
+            :index="index + 1"
+            :class="[index % 2 === 0 ? 'bg-white' : 'bg-slate-100']"
+            :mode="MODES.BOTH"
+            @inputChanged="$emit('inputChanged', $event)"
+          />
+        </div>
       </div>
     </table>
   </div>
