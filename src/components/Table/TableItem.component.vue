@@ -5,11 +5,12 @@
     </div>
     <div class="px-4 w-4/12">
       <TableInput
-        @inputChanged="$emit('inputChanged', item)"
+        class="table-input"
         placeholder="Something awful.."
+        v-model="item.word"
+        @inputChanged="$emit('inputChanged', item)"
         :allowEditing="allowEditing"
         :class="{ 'blur-sm': mode === MODES.WORDS }"
-        v-model="item.word"
       />
     </div>
     <div class="px-4 w-4/12">

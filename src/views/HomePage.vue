@@ -37,6 +37,7 @@ import DeleteModal from "@/components/DeleteModal.component.vue";
 import { MODES } from "@/constants/mode";
 import { withAsync } from "../helpers/withAsync";
 import { fetchAll, updateWord, addWord, removeWord } from "@/api/wordsApi";
+import { nextTick } from '@vue/runtime-core';
 export default {
   name: "HomePage",
   components: {
@@ -107,7 +108,12 @@ export default {
 
       if (response) {
         if (this.items.length >= this.limit) {
-          this.getWords({
+          this.filter = {
+            name: 'word',
+            state: 1
+          } 
+
+          await this.getWords({
             page: this.currentPage,
             limit: this.limit,
             sortBy: this.filter.name,
@@ -116,6 +122,12 @@ export default {
         } else {
           this.items.unshift(response.data);
         }
+
+        nextTick(() => {
+          const newWordItem = document.querySelectorAll('.table-input')[0]
+
+          if ( newWordItem ) newWordItem.focus()
+        })
       }
 
       if (error) {

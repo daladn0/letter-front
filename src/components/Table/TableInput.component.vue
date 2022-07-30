@@ -6,7 +6,7 @@
     :value="modelValue"
     :placeholder="placeholder"
     ref="textarea"
-    class="bg-transparent w-full h-full py-4 outline-none resize-none block"
+    class="bg-transparent w-full h-full py-4 outline-none resize-none block focus:ring-1 ring-blue-800"
     type="text"
     rows="1"
   />
