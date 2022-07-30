@@ -4,10 +4,10 @@
     @input="onInput($event.target)"
     :disabled="!allowEditing"
     :value="modelValue"
+    :placeholder="placeholder"
     ref="textarea"
     class="bg-transparent w-full h-full py-4 outline-none resize-none block"
     type="text"
-    placeholder="Something awful.."
     rows="1"
   />
 </template>

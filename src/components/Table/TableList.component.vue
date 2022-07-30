@@ -25,10 +25,10 @@
           <TableItem
             class="front"
             @inputChanged="$emit('inputChanged', $event)"
-            @deleteWord="$emit('deleteWord', $event)"
+            @deleteWord="$emit('deleteWord', $event, getNumber(index + 1))"
             :allowEditing="allowEditing"
             :item="item"
-            :index="index + 1"
+            :index="getNumber(index + 1)"
             :class="[index % 2 === 0 ? 'bg-white' : 'bg-slate-100']"
             :mode="mode"
           />
@@ -38,7 +38,7 @@
             class="back absolute left-0 top-0 w-full"
             :allowEditing="false"
             :item="item"
-            :index="index + 1"
+            :index="getNumber(index + 1)"
             :class="[index % 2 === 0 ? 'bg-white' : 'bg-slate-100']"
             :mode="MODES.BOTH"
             @inputChanged="$emit('inputChanged', $event)"
@@ -57,7 +57,7 @@ import { MODES } from "@/constants/mode";
 export default {
   name: "TableList",
   emits: ["inputChanged", "deleteWord", "filter"],
-  props: ["allowEditing", "mode", "isLoading", "items"],
+  props: ["allowEditing", "mode", "isLoading", "items", "shift"],
   created() {
     this.MODES = MODES;
     this.sortFilters = [
@@ -66,6 +66,11 @@ export default {
       { name: "Date", filter: "date", width: "w-2/12" },
       { name: "Actions", width: "w-1/12", textAlignCenter: true },
     ];
+  },
+  methods: {
+    getNumber(index) {
+      return this.shift + index
+    }
   },
   components: {
     LoadingSpinner,

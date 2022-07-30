@@ -1,34 +1,39 @@
 <template>
-  <div class="container mx-auto py-6 space-y-8">
-    <ControlPanel
-      @swap="allowEditing = !allowEditing"
-      @toggleMode="mode = $event"
-      @addWord="onAddWord"
-      :allowEditing="allowEditing"
-      :mode="mode"
-    />
-    <TableList
-      @inputChanged="onInputChanged($event)"
-      @deleteWord="onWordDelete"
-      @filter="onFilter"
-      :allowEditing="allowEditing"
-      :mode="mode"
-      :items="items"
-      :isLoading="isLoading"
-    />
-    <Pagination
-      v-if="totalCount > limit"
-      class="flex justify-center"
-      @change="onPageChange"
-      :currentPage="currentPage"
-      :totalPages="totalPages"
-    />
+  <div class="container mx-auto py-6">
+    <DeleteModal v-if="showModal" @close="showModal = false" :number="numberToRemove" @confirm="onWordDelete" />
+    <div class="space-y-8">
+      <ControlPanel
+        @swap="allowEditing = !allowEditing"
+        @toggleMode="mode = $event"
+        @addWord="onAddWord"
+        :allowEditing="allowEditing"
+        :mode="mode"
+      />
+      <TableList
+        @inputChanged="onInputChanged($event)"
+        @deleteWord="openModal"
+        @filter="onFilter"
+        :allowEditing="allowEditing"
+        :mode="mode"
+        :items="items"
+        :isLoading="isLoading"
+        :shift="(currentPage - 1) * limit"
+      />
+      <Pagination
+        v-if="totalCount > limit"
+        class="flex justify-center"
+        @change="onPageChange"
+        :currentPage="currentPage"
+        :totalPages="totalPages"
+      />
+    </div>
   </div>
 </template>
 <script>
 import ControlPanel from "@/components/ControlPanel.component.vue";
 import TableList from "@/components/Table/TableList.component.vue";
 import Pagination from "@/components/Pagination.component.vue";
+import DeleteModal from "@/components/DeleteModal.component.vue";
 import { MODES } from "@/constants/mode";
 import { withAsync } from "../helpers/withAsync";
 import { fetchAll, updateWord, addWord, removeWord } from "@/api/wordsApi";
@@ -38,17 +43,23 @@ export default {
     TableList,
     ControlPanel,
     Pagination,
+    DeleteModal,
   },
   data() {
     return {
-      allowEditing: true,
-      mode: MODES.BOTH,
       isLoading: true,
+      mode: MODES.BOTH,
+      allowEditing: true,
+      showModal: false,
+
+      items: [],
+      itemToRemove: null,
+      numberToRemove: null,
+
       filter: {
         name: null,
         state: null,
       },
-      items: [],
       totalCount: 0,
       currentPage: 1,
       limit: 10,
@@ -69,6 +80,12 @@ export default {
     this.getWords({ page: this.currentPage, limit: this.limit });
   },
   methods: {
+    openModal(item, number) {
+      this.itemToRemove = item
+      this.numberToRemove = number
+
+      this.showModal = true
+    },
     async getWords(args) {
       const { response, error } = await withAsync(fetchAll, args);
       this.isLoading = false;
@@ -88,11 +105,16 @@ export default {
     async onAddWord() {
       const { response, error } = await withAsync(addWord);
 
-      if ( response ) {
-        if ( this.items.length >= this.limit ) {
-          this.getWords({ page: this.currentPage, limit: this.limit, sortBy: this.filter.name, orderBy: this.filter.state })
+      if (response) {
+        if (this.items.length >= this.limit) {
+          this.getWords({
+            page: this.currentPage,
+            limit: this.limit,
+            sortBy: this.filter.name,
+            orderBy: this.filter.state,
+          });
         } else {
-          this.items.unshift(response.data)
+          this.items.unshift(response.data);
         }
       }
 
@@ -100,20 +122,27 @@ export default {
         console.log(error);
       }
     },
-    async onWordDelete(item) {
-      const { response, error } = await withAsync(removeWord, item._id);
+    async onWordDelete() {
+      this.showModal = false
+      const { response, error } = await withAsync(removeWord, this.itemToRemove._id);
 
-      if (this.items.length <= 1 && this.currentPage > 1) return (this.currentPage = this.currentPage - 1);
+      if (this.items.length <= 1 && this.currentPage > 1)
+        return (this.currentPage = this.currentPage - 1);
 
-      if ( response ) {
-        this.items = this.items.filter( i => i._id !== item._id )
+      if (response) {
+        this.items = this.items.filter((i) => i._id !== this.itemToRemove._id);
       }
 
       if (error) console.log(error);
     },
     async onFilter(filter) {
       this.filter = filter;
-      this.getWords({ page: this.currentPage, limit: this.limit, sortBy: this.filter.name, orderBy: this.filter.state });
+      this.getWords({
+        page: this.currentPage,
+        limit: this.limit,
+        sortBy: this.filter.name,
+        orderBy: this.filter.state,
+      });
     },
     onPageChange(page) {
       this.currentPage = page;
@@ -124,7 +153,12 @@ export default {
       localStorage.setItem("allowEditing", this.allowEditing);
     },
     currentPage() {
-      this.getWords({ page: this.currentPage, limit: this.limit, sortBy: this.filter.name, orderBy: this.filter.state });
+      this.getWords({
+        page: this.currentPage,
+        limit: this.limit,
+        sortBy: this.filter.name,
+        orderBy: this.filter.state,
+      });
     },
   },
   computed: {
