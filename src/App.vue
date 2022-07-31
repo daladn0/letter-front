@@ -3,16 +3,22 @@
     <LoadingSpinner class="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 w-20 h-20" v-if="isLoading"  />
     <component v-else :is="layout">
         <router-view />
+
+        <!-- toast -->
+        <transition name="slide-in">
+          <ToastMessage v-if="isVisible" @close="hideToast" />
+        </transition>
     </component>
   </div>
 </template>
 
 <script>
-import { mapActions } from "vuex";
+import { mapActions, mapGetters } from "vuex";
 import EmptyLayout from "@/layouts/EmptyLayout.vue";
 import MainLayout from "@/layouts/MainLayout.vue"
-import { checkAuth } from '@/api/authApi'
+import ToastMessage from "@/components/ToastMessage.component.vue";
 import LoadingSpinner from "@/components/LoadingSpinner.component.vue"
+import { checkAuth } from '@/api/authApi'
 import { withAsync } from './helpers/withAsync';
 
 export default {
@@ -26,15 +32,18 @@ export default {
     EmptyLayout,
     MainLayout,
     LoadingSpinner,
+    ToastMessage,
   },
   computed: {
+    ...mapGetters("toast", ["isVisible"]),
     layout() {
       const value = this.$route?.meta?.layout
       return value && value === 'main' ? 'MainLayout' : 'EmptyLayout'
     }
   },
   methods: {
-    ...mapActions('auth', ['login'])
+    ...mapActions('auth', ['login']),
+    ...mapActions("toast", ["hideToast"]),
   },
   async mounted() {
       this.isLoading = true

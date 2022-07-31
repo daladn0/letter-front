@@ -47,7 +47,7 @@
 
     <!-- message -->
     <div class="px-4 py-2">
-      <p class="text-sm line-clamp line-clamp-3 break-all">{{ message }}</p>
+      <p class="text-sm line-clamp line-clamp-3 break-words">{{ message }}</p>
     </div>
   </div>
 </template>

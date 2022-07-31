@@ -1,6 +1,5 @@
 <template>
   <div
-    tabindex="-1"
     class="flex items-center justify-center fixed top-0 right-0 left-0 z-50 w-full h-full bg-black bg-opacity-60"
     @click.self="$emit('close')"
   >
@@ -22,8 +21,8 @@
             Are you sure you want to delete word <span class="font-semibold"># {{number}}</span>?
           </h3>
           <div class="flex items-center justify-center space-x-4">
-            <button class="btn btn-red" @click="$emit('confirm')">Yes, I'm sure</button>
-            <button class="btn btn-grey px-8" @click="$emit('close')">No, cancel</button>
+            <button class="btn btn-red ring-offset-2 ring-offset-white focus:ring-2 focus:ring-blue-500" @click="$emit('confirm')">Yes, I'm sure</button>
+            <button class="btn btn-grey px-8 ring-offset-2 ring-offset-white focus:ring-2 focus:ring-blue-500" @click="$emit('close')" ref="cancel">No, cancel</button>
           </div>
         </div>
       </div>
@@ -33,6 +32,9 @@
 <script>
 export default {
   name: "DeleteModal",
-  props: ['number']
+  props: ['number'],
+  mounted() {
+    this.$refs['cancel'].focus()
+  } 
 };
 </script>

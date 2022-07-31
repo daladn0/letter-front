@@ -29,3 +29,7 @@ export const addWord = (word = '', definition = '') => {
 export const removeWord = id => {
     return api.delete(`/word/${id}`)
 }
+
+export const exportCSV = () => {
+    return api.get(`/word/csv`)
+}
