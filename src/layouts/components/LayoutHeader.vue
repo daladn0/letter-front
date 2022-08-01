@@ -43,6 +43,7 @@ export default {
       await logout()
       this.authLogout()
       localStorage.removeItem('token')
+      this.$router.push({name: 'login'})
     }
   }
 }

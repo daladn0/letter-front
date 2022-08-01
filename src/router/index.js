@@ -17,7 +17,8 @@ const routes = [
     name: "login",
     component: () => import("@/views/LoginPage.vue"),
     meta: {
-      layout: 'empty'
+      layout: 'empty',
+      authForbidden: true,
     }
   },
   {
@@ -25,7 +26,8 @@ const routes = [
     name: "signup",
     component: () => import("@/views/SignupPage.vue"),
     meta: {
-      layout: 'empty'
+      layout: 'empty',
+      authForbidden: true,
     }
   },
 ];
@@ -35,12 +37,14 @@ const router = createRouter({
   routes,
 });
 
-// router.beforeEach((to, from, next) => {
-//   if ( !to.meta.authRequired ) return next()
+router.beforeEach((to, from, next) => {
+  if ( to.meta?.authForbidden && store.getters['auth/isAuth'] ) return next({name: 'home'})
 
-//   if ( to?.meta?.authRequired && store.getters['auth/isAuth'] ) return next()
+  if ( !to.meta?.authRequired ) return next()
 
-//   next({ name: 'login' })
-// })
+  if ( to?.meta?.authRequired && store.getters['auth/isAuth'] ) return next()
+
+  return next({name: 'login'})
+})
 
 export default router;
