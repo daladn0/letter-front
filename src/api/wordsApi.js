@@ -33,3 +33,7 @@ export const removeWord = id => {
 export const exportCSV = () => {
     return api.get(`/word/csv`)
 }
+
+export const exportPDF = () => {
+    return api.get(`/word/pdf`)
+}

@@ -2,18 +2,19 @@
   <div class="bg-white p-4 rounded-md border">
     <div class="flex justify-between items-center h-12">
       <div class="flex items-center space-x-4 h-full">
-        <button class="btn btn-blue h-full">
-          <svg class="w-6 h-6 mr-2">
-            <use xlink:href="/sprite.svg#upload" />
-          </svg>
-          Import
-        </button>
-
         <button class="btn btn-blue h-full" @click="exportDataCSV">
           <svg class="w-6 h-6 mr-2">
             <use xlink:href="/sprite.svg#export" />
           </svg>
-          <span v-if="!isExportLoading">Export</span>
+          <span v-if="!isExportCSVLoading">Export CSV</span>
+          <LoadingSpinner v-else class="w-5 h-5 ml-2 mr-4" />
+        </button>
+
+        <button class="btn btn-blue h-full" @click="exportDataPDF">
+          <svg class="w-6 h-6 mr-2">
+            <use xlink:href="/sprite.svg#export" />
+          </svg>
+          <span v-if="!isExportPDFLoading">Export PDF</span>
           <LoadingSpinner v-else class="w-5 h-5 ml-2 mr-4" />
         </button>
       </div>
@@ -46,7 +47,7 @@
 
         <button
           class="flex-shrink-0 btn btn-blue py-0 h-full"
-          @click="$emit('addWord')"
+          @click="addWord"
         >
           <svg class="w-6 h-6 mr-2">
             <use xlink:href="/sprite.svg#plus" />
@@ -61,7 +62,7 @@
 <script>
 import { mapActions } from 'vuex'
 import { MODES } from "@/constants/mode";
-import { exportCSV } from '@/api/wordsApi'
+import { exportCSV, exportPDF } from '@/api/wordsApi'
 import { withAsync } from '@/helpers/withAsync';
 import { TYPES } from '@/constants/toast'
 import LoadingSpinner from '@/components/LoadingSpinner.component.vue'
@@ -75,17 +76,16 @@ export default {
   data() {
     return {
       MODES,
-      isExportLoading: false,
+      isExportCSVLoading: false,
+      isExportPDFLoading: false,
     };
   },
   methods: {
     ...mapActions('toast', ['showToast']),
     async exportDataCSV() {
-      this.isExportLoading = true
-
+      this.isExportCSVLoading = true
       const { response, error, errorMessage } = await withAsync(exportCSV)
-
-      this.isExportLoading = false
+      this.isExportCSVLoading = false
 
       if ( response ) {
         const file = new File([response.data], 'words.csv', {
@@ -106,8 +106,35 @@ export default {
       }
 
       if ( error ) {
-        this.showToast({content: { heading: 'Downloading csv', message: errorMessage || 'Something went wrong'}, type: TYPES.ERROR})
+        this.showToast({content: { heading: 'Downloading CSV', message: errorMessage || 'Something went wrong'}, type: TYPES.ERROR})
       }
+    },
+    async exportDataPDF() {
+      this.isExportPDFLoading = true
+      const { response, error, errorMessage } = await withAsync(exportPDF)
+      this.isExportPDFLoading = false
+
+      if ( response ) {
+        const link = document.createElement('a')
+        link.href = response.data
+        link.download = 'words.pdf'
+
+        document.body.appendChild(link)
+
+        link.click()
+
+        link.remove()
+      }
+
+
+      if ( error ) {
+        this.showToast({content: { heading: 'Downloading PDF', message: errorMessage || 'Something went wrong'}, type: TYPES.ERROR})
+      }
+
+    },
+    addWord() {
+      this.$emit('toggleMode', MODES.BOTH)
+      this.$emit('addWord')
     }
   }
 };
