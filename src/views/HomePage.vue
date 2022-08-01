@@ -1,6 +1,11 @@
 <template>
   <div class="container mx-auto py-6">
-    <DeleteModal v-if="showModal" @close="showModal = false" :number="numberToRemove" @confirm="onWordDelete" />
+    <DeleteModal
+      v-if="showModal"
+      @close="showModal = false"
+      :number="numberToRemove"
+      @confirm="onWordDelete"
+    />
     <div class="space-y-8">
       <ControlPanel
         @swap="allowEditing = !allowEditing"
@@ -8,6 +13,7 @@
         @addWord="onAddWord"
         :allowEditing="allowEditing"
         :mode="mode"
+        :filter="filter"
       />
       <TableList
         @inputChanged="onInputChanged($event)"
@@ -37,7 +43,7 @@ import DeleteModal from "@/components/DeleteModal.component.vue";
 import { MODES } from "@/constants/mode";
 import { withAsync } from "../helpers/withAsync";
 import { fetchAll, updateWord, addWord, removeWord } from "@/api/wordsApi";
-import { nextTick } from '@vue/runtime-core';
+import { nextTick } from "@vue/runtime-core";
 export default {
   name: "HomePage",
   components: {
@@ -82,10 +88,10 @@ export default {
   },
   methods: {
     openModal(item, number) {
-      this.itemToRemove = item
-      this.numberToRemove = number
+      this.itemToRemove = item;
+      this.numberToRemove = number;
 
-      this.showModal = true
+      this.showModal = true;
     },
     async getWords(args) {
       const { response, error } = await withAsync(fetchAll, args);
@@ -106,12 +112,23 @@ export default {
     async onAddWord() {
       const { response, error } = await withAsync(addWord);
 
+      // Switch page to the very first if it isn't
+      if (this.currentPage > 1) {
+        this.currentPage = 1;
+        await this.getWords({
+          page: this.currentPage,
+          limit: this.limit,
+          sortBy: this.filter.name,
+          orderBy: this.filter.state,
+        });
+      }
+
       if (response) {
         if (this.items.length >= this.limit) {
           this.filter = {
-            name: 'word',
-            state: 1
-          } 
+            name: "word",
+            state: 1,
+          };
 
           await this.getWords({
             page: this.currentPage,
@@ -124,10 +141,10 @@ export default {
         }
 
         nextTick(() => {
-          const newWordItem = document.querySelectorAll('.table-input')[0]
+          const newWordItem = document.querySelectorAll(".table-input")[0];
 
-          if ( newWordItem ) newWordItem.focus()
-        })
+          if (newWordItem) newWordItem.focus();
+        });
       }
 
       if (error) {
@@ -135,14 +152,31 @@ export default {
       }
     },
     async onWordDelete() {
-      this.showModal = false
-      const { response, error } = await withAsync(removeWord, this.itemToRemove._id);
-
-      if (this.items.length <= 1 && this.currentPage > 1)
-        return (this.currentPage = this.currentPage - 1);
+      this.showModal = false;
+      const { response, error } = await withAsync(
+        removeWord,
+        this.itemToRemove._id
+      );
 
       if (response) {
-        this.items = this.items.filter((i) => i._id !== this.itemToRemove._id);
+        // if user is removing the last item in a list and the page is not first then go to the previous page
+        if (this.items.length <= 1 && this.currentPage > 1) {
+          this.currentPage = this.currentPage - 1;
+
+          return await this.getWords({
+            page: this.currentPage,
+            limit: this.limit,
+            sortBy: this.filter.name,
+            orderBy: this.filter.state,
+          });
+        }
+
+        this.getWords({
+          page: this.currentPage,
+          limit: this.limit,
+          sortBy: this.filter?.name,
+          orderBy: this.filter?.state,
+        });
       }
 
       if (error) console.log(error);
@@ -158,19 +192,18 @@ export default {
     },
     onPageChange(page) {
       this.currentPage = page;
-    },
-  },
-  watch: {
-    allowEditing() {
-      localStorage.setItem("allowEditing", this.allowEditing);
-    },
-    currentPage() {
+
       this.getWords({
         page: this.currentPage,
         limit: this.limit,
         sortBy: this.filter.name,
         orderBy: this.filter.state,
       });
+    },
+  },
+  watch: {
+    allowEditing() {
+      localStorage.setItem("allowEditing", this.allowEditing);
     },
   },
   computed: {

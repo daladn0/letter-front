@@ -34,6 +34,20 @@ export const exportCSV = () => {
     return api.get(`/word/csv`)
 }
 
-export const exportPDF = () => {
-    return api.get(`/word/pdf`)
+export const exportPDF = (args) => {
+    let url = `/word/pdf`
+
+    if ( args && Object.keys(args).length !== 0 && Object.getPrototypeOf(args) === Object.prototype ) {
+        const searchParams = new URLSearchParams('')
+        
+        for ( let [key, value] of Object.entries(args) ) {
+            if ( value ) searchParams.append(key, value)
+        }
+
+        url = url + '?' + searchParams.toString()
+    } else {
+        url = '/word/pdf'
+    }
+
+    return api.get(url)
 }

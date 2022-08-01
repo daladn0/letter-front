@@ -69,7 +69,7 @@ import LoadingSpinner from '@/components/LoadingSpinner.component.vue'
 export default {
   name: "ControlPanel",
   emits: ["swap", "toggleMode", "addWord"],
-  props: ["allowEditing", "mode"],
+  props: ["allowEditing", "mode", "filter"],
   components: {
     LoadingSpinner
   },
@@ -111,7 +111,7 @@ export default {
     },
     async exportDataPDF() {
       this.isExportPDFLoading = true
-      const { response, error, errorMessage } = await withAsync(exportPDF)
+      const { response, error, errorMessage } = await withAsync(exportPDF, {sortBy: this.filter?.name, orderBy: this.filter?.state})
       this.isExportPDFLoading = false
 
       if ( response ) {
