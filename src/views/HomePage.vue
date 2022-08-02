@@ -115,30 +115,20 @@ export default {
       // Switch page to the very first if it isn't
       if (this.currentPage > 1) {
         this.currentPage = 1;
+      }
+
+      if (response) {
+        this.filter = {
+          name: 'word',
+          state: 1
+        }
+
         await this.getWords({
           page: this.currentPage,
           limit: this.limit,
           sortBy: this.filter.name,
           orderBy: this.filter.state,
         });
-      }
-
-      if (response) {
-        if (this.items.length >= this.limit) {
-          this.filter = {
-            name: "word",
-            state: 1,
-          };
-
-          await this.getWords({
-            page: this.currentPage,
-            limit: this.limit,
-            sortBy: this.filter.name,
-            orderBy: this.filter.state,
-          });
-        } else {
-          this.items.unshift(response.data);
-        }
 
         nextTick(() => {
           const newWordItem = document.querySelectorAll(".table-input")[0];
@@ -162,13 +152,6 @@ export default {
         // if user is removing the last item in a list and the page is not first then go to the previous page
         if (this.items.length <= 1 && this.currentPage > 1) {
           this.currentPage = this.currentPage - 1;
-
-          return await this.getWords({
-            page: this.currentPage,
-            limit: this.limit,
-            sortBy: this.filter.name,
-            orderBy: this.filter.state,
-          });
         }
 
         this.getWords({
