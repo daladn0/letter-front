@@ -1,15 +1,10 @@
 const express = require('express')
-const path = require('path')
+const port = process.env.PORT || 8080
 
-const PORT = process.env.port || 8080
+const app = require()
 
-const app = express()
+app.use(express.static(__dirname, 'dist'))
 
-app.use(express.static(__dirname))
-app.use(express.static(path.resolve(__dirname, 'dist')))
-
-app.get('*', (req) => {
-    res.sendFile(path.join(__dirname, 'dist', 'index.html'))
+app.listen(port, () => {
+    console.log(`front listening on port ${port}`)
 })
-
-app.listen(PORT)
